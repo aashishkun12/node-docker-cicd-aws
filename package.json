@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "No test right row"
+    "test": "echo \"No tests yet\""
   },
   "author": "",
   "license": "ISC",
