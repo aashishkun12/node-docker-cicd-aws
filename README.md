@@ -50,17 +50,3 @@ Nginx forwards requests from port **80** to the Node.js application running insi
 - Routes traffic to internal application port
 
 ---
-
-## 🔐 SSH Key Setup (EC2 + GitHub Actions)
-
-SSH keys are used for both server access and CI/CD deployment.
-
-```bash
-ssh-keygen -t ed25519 -C "your_email@example.com"
-
-```bash
-scp -i your-ec2-key.pem id_ed25519.pub ubuntu@<ec2-ip>:/tmp/
-
-```bash
-cat id_ed25519.pub >> ~/.ssh/authorized_keys
-
