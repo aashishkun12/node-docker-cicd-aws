@@ -32,7 +32,7 @@ jobs:
             cd /home/ubuntu/node-docker-cicd-aws
             git pull origin main
 
-            docker build -t NodeJS .
+            docker build -t nodejs .
 
             docker stop node-app || true
             docker rm node-app || true
@@ -40,4 +40,7 @@ jobs:
             docker run -d \
               --name node-app \
               -p 127.0.0.1:8000:8000 \
-              NodeJS
+              nodejs
+
+# Adds 'ubuntu' user to docker group so Docker can run without sudo (required for CI/CD on EC2)
+# sudo usermod -aG docker ubuntu
