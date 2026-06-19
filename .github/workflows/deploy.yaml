@@ -6,9 +6,6 @@ on:
     #   - main
     tags:
       - 'v*'
-  
-  workflow_dispatch:
-
 
 jobs:
   build-test-push:
