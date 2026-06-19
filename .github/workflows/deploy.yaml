@@ -46,8 +46,8 @@ jobs:
       - name: Push Docker image
         run: |
           docker push \
-          -t ${{ secrets.DOCKERHUB_USERNAME }}/nodejs:${TAG} \
-          -t ${{ secrets.DOCKERHUB_USERNAME }}/nodejs:latest .
+          ${{ secrets.DOCKERHUB_USERNAME }}/nodejs:${TAG} \
+          ${{ secrets.DOCKERHUB_USERNAME }}/nodejs:latest .
 
       # - name: Deploy to EC2
       #   uses: appleboy/ssh-action@v1.2.0
