@@ -1,0 +1,61 @@
+Common nginx commands
+
+sudo nginx -t // Test config
+
+sudo systemctl restart nginx
+
+--------------------------------
+
+worker_processes 1;
+
+events {
+        worker_connections 768;
+}
+
+http {
+        include /etc/nginx/conf.d/*.conf;
+        include /etc/nginx/sites-enabled/*;
+}
+
+
+--------------------------------------------
+Symbolic Link
+
+sudo ln -s /etc/nginx/sites-available/<app-name> /etc/nginx/sites-enabled/
+
+#Remove default site
+sudo rm /etc/nginx/sites-enabled/default
+
+# sites-available → stores configs
+# sites-enabled → active configs Nginx actually uses
+
+
+------------------------------------------
+
+    server {
+
+        # Listen on port 80 (default HTTP port)
+        listen 80;
+
+        # Domain name or public IP of your server
+        server_name 3.90.201.133;
+
+        location / {
+
+            # Forward all incoming requests to backend server
+            # (your application running on port 8000)
+            proxy_pass http://localhost:8000;
+
+            # Preserve original host header from client request
+            # Useful for domain-based routing in backend apps
+            proxy_set_header Host $host;
+
+            # Pass real client IP address to backend
+            # So backend knows actual user IP instead of Nginx IP
+            proxy_set_header X-Real-IP $remote_addr;
+
+            # Maintain list of IPs through which request passed
+            # Helps when multiple proxies/load balancers are used
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+    }
