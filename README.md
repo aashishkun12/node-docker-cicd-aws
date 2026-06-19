@@ -65,3 +65,48 @@ scp -i your-ec2-key.pem id_ed25519.pub ubuntu@<ec2-ip>:/tmp/
 ```bash
 cat id_ed25519.pub >> ~/.ssh/authorized_keys
 ```
+
+---
+### 🚀 Git Tags & Release Workflow
+
+This project uses **Git tags** for versioning releases (e.g., v1.0, v1.1, v2.0).  
+Each tag represents a stable release that can be deployed via CI/CD.
+
+---
+
+## 📌 Create a new release (tag)
+
+After making changes:
+
+```bash
+git add .
+git commit -m "New feature"
+git tag -a v1.1 -m "Release v1.1"
+git push origin main
+git push origin v1.1
+```
+
+#### Common Commands
+
+1. List all tags
+
+```bash
+git tag
+```
+
+2. List tags with pattern:
+
+```bash
+git tag -l "v*"
+```
+3. Delete a tag (local)
+
+```bash
+git tag -d v1.1
+```
+
+4. Delete a tag (remote)
+
+```bash
+git push origin --delete v1.1
+```
