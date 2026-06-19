@@ -1,46 +1,73 @@
-name: Deploy Node app on ec2
+name: Deploy Node App to EC2
 
 on:
   push:
-    branches:
-      - main
+    # branches:
+    #   - main
+    tags:
+      - 'v*'
+
 
 jobs:
-  deploy:
-    
+  build-test-push:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      - run: npm test
+      - name: Run tests
+        run: npm test
 
-      - name: Deploy to ec2
-        uses: appleboy/ssh-action@v1
+      - name: Get Tag name
+        id: tag
+        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd /home/ubuntu/node-docker-cicd-aws
-            git pull origin main
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-            docker build -t nodejs .
+      - name: Build Docker image
+        run: |
+          docker build \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/nodejs:${TAG} \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/nodejs:latest .
+          
+      - name: Push Docker image
+        run: |
+          docker push \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/nodejs:${TAG} \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/nodejs:latest .
 
-            docker stop node-app || true
-            docker rm node-app || true
+      # - name: Deploy to EC2
+      #   uses: appleboy/ssh-action@v1.2.0
+      #   with:
+      #     host: ${{ secrets.EC2_HOST }}
+      #     username: ${{ secrets.EC2_USER }}
+      #     key: ${{ secrets.EC2_SSH_KEY }}
+      #     script: |
+      #       docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
 
-            docker run -d \
-              --name node-app \
-              -p 127.0.0.1:8000:8000 \
-              nodejs
+      #       docker stop node-app || true
+      #       docker rm node-app || true
+
+      #       docker run -d \
+      #         --name node-app \
+      #         --restart unless-stopped \
+      #         -p 127.0.0.1:8000:8000 \
+      #         ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
+
+      #       docker image prune -f
 
 # Adds 'ubuntu' user to docker group so Docker can run without sudo (required for CI/CD on EC2)
 # sudo usermod -aG docker ubuntu
