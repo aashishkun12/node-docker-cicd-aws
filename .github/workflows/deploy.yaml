@@ -6,6 +6,8 @@ on:
     #   - main
     tags:
       - 'v*'
+  
+  workflow_dispatch:
 
 
 jobs:
@@ -54,9 +56,8 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: TAG,DOCKERHUB_USERNAME
           script: |
-            docker pull $DOCKERHUB_USERNAME/nodejs:$TAG
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nodejs:${{ github.ref_name }}
 
             docker stop node-app || true
             docker rm node-app || true
@@ -64,7 +65,7 @@ jobs:
             docker run -d \
               --name node-app \
               -p 127.0.0.1:8000:8000 \
-              $DOCKERHUB_USERNAME/nodejs:$TAG
+              ${{ secrets.DOCKERHUB_USERNAME }}/nodejs:${{ github.ref_name }}
 
 # Adds 'ubuntu' user to docker group so Docker can run without sudo (required for CI/CD on EC2)
 # sudo usermod -aG docker ubuntu
